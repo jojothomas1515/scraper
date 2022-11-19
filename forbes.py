@@ -1,13 +1,12 @@
 import json
 import re
 
-import pandas as pd
 from pyforbes import ForbesList
 
 
 class ForbesVip():
 
-    def to_dict(self, data: str) -> dict:
+    def make_result(self, data: str) -> dict:
         local_dict = {}
         data_con = data.split(";")
         for i in data_con:
@@ -17,7 +16,8 @@ class ForbesVip():
 
     def dict_to_json(self, data: dict):
         json_data = json.dumps(data)
-        return json.loads(json_data)
+        # return dict(json.loads(json_data))
+        return data
 
         pass
 
@@ -25,8 +25,7 @@ class ForbesVip():
         frb_list = ForbesList()
         result_list = []
 
-        df = pd.read_csv("fblist.csv")
-        # df = frb_list.get_df('billionaires',year=2020)
+        df = frb_list.get_df('billionaires')
         # js = frb_list.get_df('thailand-billionaires',year=2020)
 
         # with open("frb400.csv", "w") as ll:
@@ -58,14 +57,23 @@ class ForbesVip():
                 if indus == industry:
                     vip_score += score[indus]
 
-            data = f"name:{name};occupation:[{industry}];country:{country};age:{age};gender:{gender};vip_score:{vip_score}"
+            # data = f"name:{name};occupation:[{industry}];country:{country};age:{age};gender:{gender};vip_score:{vip_score}"
+            diction = {
+                "name": name,
+                "occupation": [industry],
+                "country": country,
+                "age": age,
+                "gender": gender,
+                "vip_score": vip_score,
+            }
+            # compile name passed to regex pattern
             namep = re.compile(pname.lower())
 
+            # search if name pattern is in the name variable
             if namep.search(name.lower()):
-                result_list.append(self.to_dict(data))
-        return (result_list)
+                result_list.append(diction)
+                # result_list.append(self.make_result(data))
+        return result_list
 
 
 vip = ForbesVip()
-
-print(vip.process("andrew"))
